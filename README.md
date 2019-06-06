@@ -3,6 +3,17 @@
 
 ## 启动
 $ python main.py (确保有输入输出设备......)
+```
+Q: 世界上最漂亮的人是谁
+A: 大概是如花吧，因为貌美如花啊！
+Q: 播放光年之外
+A: xxxxxx 此时应有背景音乐......
+......
+
+Q保存到audio/audio.wav
+A保存到audio/audio.mp3
+歌曲保存到audio/song.mp3
+```
 
 ## snowboy唤醒词
 ### [安装](https://github.com/Kitt-AI/snowboy)
