@@ -1,15 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# https://blog.csdn.net/qq_38282706/article/details/80300475
-
 import requests, os, json, base64
 import urllib
 from binascii import hexlify
 from Crypto.Cipher import AES
 
 
-class Encrypyed():
+class Encrypyed:
     def __init__(self):
         self.pub_key = '010001'
         self.modulus = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7'
@@ -52,7 +50,7 @@ class Encrypyed():
         return data
 
 
-class search():
+class NetEase:
     def __init__(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
@@ -63,7 +61,7 @@ class search():
         self.session.headers = self.headers
         self.ep = Encrypyed()
 
-    def search_song(self, search_content, search_type=1, limit=9):
+    def download_song(self, search_content, search_type=1, limit=9):
         """
         根据音乐名搜索
       :params search_content: 音乐名
@@ -95,8 +93,8 @@ import filetype
 
 if __name__ == '__main__':
     song_name = '光年之外'
-    s = search()
-    result = s.search_song('光年之外')
+    netease = NetEase()
+    netease.download_song(song_name)
 
     # 判断是否成功下载
     ftype = filetype.guess('audio/song.mp3')

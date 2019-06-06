@@ -1,19 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# 安装: https://wukong.hahack.com/#/install?id=方式二：手动安装
-# 代码: https://s3-us-west-2.amazonaws.com/snowboy/snowboy-releases/ubuntu1404-x86_64-1.1.1.tar.bz2
-# 语料: https://snowboy.kitt.ai/dashboard
-
-"""
-1. 唤醒 √
-2. 响应
-3. 输入
-4. 理解
-5. 反馈
-"""
-
 import snowboydecoder
+# import sys
 import signal
 
 interrupted = False
@@ -28,8 +17,14 @@ def interrupt_callback():
     global interrupted
     return interrupted
 
+# if len(sys.argv) == 1:
+#     print("Error: need to specify model name")
+#     print("Usage: python demo.py your.model")
+#     sys.exit(-1)
+#
+# model = sys.argv[1]
 
-model = 'xiaoqi.pmdl'
+model = 'resources/xiaoqi.pmdl'
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)

@@ -1,105 +1,85 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-from aip import AipSpeech
-import pyaudio
-import wave
-import os
-
-import deep
-
-APP_ID = '16434481'
-API_KEY = 'GVZbup1aU4r18bGDfV3yTldX'
-SECRET_KEY = 'EfamQgGUhtEQdUPVAzWLswVk3Cee4PFO'
-
-client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
-
 """
-流程：
-1. 录制音频
-2. 语音识别
-3. 智能问答
-4. 语音合成
-5. 播放音频
+1. 唤醒 √
+2. 响应 √
+3. 输入 √
+4. 理解 √
+5. 反馈 √
 """
 
-
-# 录制音频
-def audio_record(out_file):
-    CHUNK = 1024
-    FORMAT = pyaudio.paInt16  # 16bit编码格式wav
-    CHANNELS = 1  # 单声道
-    RATE = 16000  # 16000采样频率
-    RECORD_SECONDS = 5  # 记录时间
-    p = pyaudio.PyAudio()
-    # 创建音频流
-    stream = p.open(format=FORMAT,  # 16bit编码格式wav
-                    channels=CHANNELS,  # 单声道
-                    rate=RATE,  # 采样率16000
-                    input=True,
-                    frames_per_buffer=CHUNK)
-    print("Start Recording...")
-    frames = []  # 录制的音频流
-    # 录制音频数据
-    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-        data = stream.read(CHUNK)
-        frames.append(data)
-    # 录制完成
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-    print("Recording Done...")
-    # 保存音频文件
-    wf = wave.open(out_file, 'wb')
-    wf.setnchannels(CHANNELS)
-    wf.setsampwidth(p.get_sample_size(FORMAT))
-    wf.setframerate(RATE)
-    wf.writeframes(b''.join(frames))
-    wf.close()
+from baidu import Baidu
+from tuling import TuLing
+from netease import NetEase
+from wakeup import snowboydecoder
+import signal
 
 
-# 语音识别
-def asr(audio_file):
-    with open(audio_file, 'rb') as fp:
-        result = client.asr(fp.read(), 'wav', 16000, {
-            'dev_pid': 1536,
-        })
-        return result
+class ChatBot:
 
+    def __init__(self):
+        self.interrupted = False
 
-# 语音合成
-def synthesis(content, audio_file):
-    result = client.synthesis(content, 'zh', 1, {
-        'vol': 5,
-    })
-    # 识别正确返回语音二进制 错误则返回dict
-    if not isinstance(result, dict):
-        with open(audio_file, 'wb') as f:
-            f.write(result)
+        # capture SIGINT signal, e.g., Ctrl+C
+        signal.signal(signal.SIGINT, self.signal_handler)
+        print('Listening... Press Ctrl+C to exit')
 
+        self.baidu = Baidu()
+        self.tuling = TuLing()
+        self.netease = NetEase()
 
-# 播放音频
-def audio_play(audio_file):
-    os.system('mplayer %s' % audio_file)
+    def signal_handler(self, signal, frame):
+        self.interrupted = True
+
+    def interrupt_callback(self):
+        return self.interrupted
+
+    def chat(self):
+        # ding
+        self.baidu.audio_play('wakeup/resources/ding.wav')
+
+        # 录制音频
+        self.baidu.audio_record('audio/audio.wav')
+        # 语音识别
+        response = self.baidu.asr('audio/audio.wav')
+
+        # dong
+        self.baidu.audio_play('wakeup/resources/dong.wav')
+
+        if response['err_no'] == 0:
+            question = response['result'][0]
+            print('Q: ' + question)
+
+            # 智能问答
+            answer = self.tuling.tuling(question)
+            print('A: ' + answer)
+
+            # 比较粗糙的实现......
+            if question.find('播放') == -1:
+                # 语音合成
+                self.baidu.synthesis(answer, 'audio/audio.mp3')
+                # 播放音频
+                self.baidu.audio_play('audio/audio.mp3')
+            else:
+                # 下载歌曲
+                song_name = question[2:]
+                self.netease.download_song(song_name)
+                # 播放音频
+                self.baidu.audio_play('audio/song.mp3')
+        else:
+            print('%d: %s' % (response['err_no'], response['err_msg']))
 
 
 if __name__ == '__main__':
-    # 录制音频
-    audio_record('audio/audio.wav')
-    # 语音识别
-    response = asr('audio/audio.wav')
+    model = 'wakeup/resources/xiaoqi.pmdl'
+    detector = snowboydecoder.HotwordDetector(model, sensitivity=0.5)
 
-    if response['err_no'] == 0:
-        question = response['result'][0]
-        print('Q: ' + question)
+    chatbot = ChatBot()
 
-        # 智能问答
-        answer = deep.tuling(question)
-        print('A: ' + answer)
+    # main loop
+    detector.start(detected_callback=chatbot.chat,
+                   interrupt_check=chatbot.interrupt_callback,
+                   sleep_time=0.03)
 
-        # 语音合成
-        synthesis(answer, 'audio/audio.mp3')
-        # 播放音频
-        audio_play('audio/audio.mp3')
-    else:
-        print('%d: %s' % (response['err_no'], response['err_msg']))
+    detector.terminate()
