@@ -12,8 +12,10 @@
 from baidu import Baidu
 from tuling import TuLing
 from netease import NetEase
-from wakeup import snowboydecoder
+from snowboy import snowboydecoder
+import util
 import signal
+import os
 
 
 class ChatBot:
@@ -37,42 +39,42 @@ class ChatBot:
 
     def chat(self):
         # ding
-        self.baidu.audio_play('wakeup/resources/ding.wav')
+        util.audio_play('snowboy/resources/ding.wav')
 
         # 录制音频
-        self.baidu.audio_record('audio/audio.wav')
+        util.audio_record('audio/audio.wav')
         # 语音识别
         response = self.baidu.asr('audio/audio.wav')
 
         # dong
-        self.baidu.audio_play('wakeup/resources/dong.wav')
+        util.audio_play('snowboy/resources/dong.wav')
 
         if response['err_no'] == 0:
             question = response['result'][0]
             print('Q: ' + question)
 
-            # 智能问答
-            answer = self.tuling.tuling(question)
-            print('A: ' + answer)
-
             # 比较粗糙的实现......
             if question.find('播放') == -1:
+                # 智能问答
+                answer = self.tuling.tuling(question)
+                print('A: ' + answer)
+
                 # 语音合成
                 self.baidu.synthesis(answer, 'audio/audio.mp3')
                 # 播放音频
-                self.baidu.audio_play('audio/audio.mp3')
+                util.audio_play('audio/audio.mp3')
             else:
                 # 下载歌曲
                 song_name = question[2:]
-                self.netease.download_song(song_name)
+                self.netease.download_song(song_name, 'audio/song.mp3')
                 # 播放音频
-                self.baidu.audio_play('audio/song.mp3')
+                util.audio_play('audio/song.mp3')
         else:
             print('%d: %s' % (response['err_no'], response['err_msg']))
 
 
 if __name__ == '__main__':
-    model = 'wakeup/resources/xiaoqi.pmdl'
+    model = 'snowboy/resources/xiaoqi.pmdl'
     detector = snowboydecoder.HotwordDetector(model, sensitivity=0.5)
 
     chatbot = ChatBot()

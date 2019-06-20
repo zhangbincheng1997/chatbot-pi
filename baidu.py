@@ -2,9 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from aip import AipSpeech
-import pyaudio
-import wave
-import os
+import util
 
 
 class Baidu:
@@ -13,48 +11,6 @@ class Baidu:
     SECRET_KEY = 'EfamQgGUhtEQdUPVAzWLswVk3Cee4PFO'
 
     client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
-
-    """
-    流程：
-    1. 录制音频
-    2. 语音识别
-    3. 智能问答
-    4. 语音合成
-    5. 播放音频
-    """
-
-    # 录制音频
-    def audio_record(self, out_file):
-        CHUNK = 1024
-        FORMAT = pyaudio.paInt16  # 16bit编码格式wav
-        CHANNELS = 1  # 单声道
-        RATE = 16000  # 16000采样频率
-        RECORD_SECONDS = 5  # 记录时间
-        p = pyaudio.PyAudio()
-        # 创建音频流
-        stream = p.open(format=FORMAT,  # 16bit编码格式wav
-                        channels=CHANNELS,  # 单声道
-                        rate=RATE,  # 采样率16000
-                        input=True,
-                        frames_per_buffer=CHUNK)
-        print("Start Recording...")
-        frames = []  # 录制的音频流
-        # 录制音频数据
-        for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-            data = stream.read(CHUNK)
-            frames.append(data)
-        # 录制完成
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        print("Recording Done...")
-        # 保存音频文件
-        wf = wave.open(out_file, 'wb')
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(p.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
-        wf.writeframes(b''.join(frames))
-        wf.close()
 
     # 语音识别
     def asr(self, audio_file):
@@ -74,17 +30,11 @@ class Baidu:
             with open(audio_file, 'wb') as f:
                 f.write(result)
 
-    # 播放音频
-    def audio_play(self, audio_file):
-        os.system('mplayer %s' % audio_file)
 
-
+#################### 语音识别 ####################
 if __name__ == '__main__':
     baidu = Baidu()
-
-    # 录制音频
-    baidu.audio_record('audio/audio.wav')
-    # 语音识别
+    util.audio_record('audio/audio.wav')
     response = baidu.asr('audio/audio.wav')
 
     if response['err_no'] == 0:
@@ -92,9 +42,8 @@ if __name__ == '__main__':
     else:
         print('%d: %s' % (response['err_no'], response['err_msg']))
 
-    ########################################
-
-    # 语音合成
+#################### 语音合成 ####################
+if __name__ == '__main__':
+    baidu = Baidu()
     baidu.synthesis('世界上最漂亮的人是谁', 'audio/audio.mp3')
-    # 播放音频
-    baidu.audio_play('audio/audio.mp3')
+    util.audio_play('audio/audio.mp3')

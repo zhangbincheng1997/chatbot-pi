@@ -61,7 +61,7 @@ class NetEase:
         self.session.headers = self.headers
         self.ep = Encrypyed()
 
-    def download_song(self, search_content, search_type=1, limit=9):
+    def download_song(self, search_content, audio_file, search_type=1, limit=9):
         """
         根据音乐名搜索
       :params search_content: 音乐名
@@ -86,20 +86,10 @@ class NetEase:
             song_id = songs[0]['id']
             # http://music.163.com/song/media/outer/url?id=449818741.mp3
             url = 'http://music.163.com/song/media/outer/url?id=%d.mp3' % song_id
-            urllib.request.urlretrieve(url, 'audio/song.mp3')
+            urllib.request.urlretrieve(url, audio_file)
 
-
-import filetype
 
 if __name__ == '__main__':
-    song_name = '光年之外'
     netease = NetEase()
-    netease.download_song(song_name)
-
-    # 判断是否成功下载
-    ftype = filetype.guess('audio/song.mp3')
-    if ftype.mime == 'audio/mpeg':
-        # 播放音频
-        os.system('mplayer %s' % 'audio/song.mp3')
-    else:
-        print('下载失败......')
+    netease.download_song('光年之外', 'audio/song.mp3')
+    os.system('mplayer audio/song.mp3')

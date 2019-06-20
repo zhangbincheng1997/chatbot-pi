@@ -1,5 +1,5 @@
 # chatbot-pi
-聊天机器人、智能音箱......
+聊天机器人、智能音箱......(Ubuntu16.04、Raspberry Pi 3 测试成功)
 
 ## 启动
 $ python main.py (确保有输入输出设备......)
@@ -19,7 +19,7 @@ A保存到audio/audio.mp3
 ### [安装](https://github.com/Kitt-AI/snowboy)
 ```
 # 安装 pyaudio sox
-$ sudo apt-get install python-pyaudio python3-pyaudio sox
+$ sudo apt-get install python-pyaudio python3-pyaudio sox ffmpeg mplayer
 $ pip install pyaudio
 
 # 安装 swig
@@ -29,8 +29,8 @@ $ cd swig-3.0.10
 $ sudo apt-get install -y libpcre3 libpcre3-dev
 $ ./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
 $ make
-$ make install
-$ install -v -m755 -d /usr/share/doc/swig-3.0.10
+$ sudo make install
+$ sudo install -v -m755 -d /usr/share/doc/swig-3.0.10
 $ sudo cp -v -R Doc/* /usr/share/doc/swig-3.0.10
 
 # 安装 atlas
@@ -40,11 +40,11 @@ $ sudo apt-get install -y libatlas-base-dev
 $ wget https://github.com/Kitt-AI/snowboy/archive/v1.3.0.tar.gz
 $ tar -xvjf snowboy-1.3.0.tar.gz
 $ cd snowboy/swig/Python3
-$ make
+$ sudo make
 ```
 
 ### 使用
-复制到项目目录:
+复制以下文件到项目目录:
 `resources/common.res`
 `resources/ding.wav`
 `resources/dong.wav`
@@ -87,6 +87,12 @@ http://ai.baidu.com/docs#/ASR-Online-Python-SDK/top
 http://ai.baidu.com/docs#/TTS-Online-Python-SDK/top
 
 ## 图灵API
+```
+pip install requests
+pip install bs4
+sudo apt-get install python3-lxml
+```
+
 智能问答文档
 http://www.tuling123.com/help/h_cent_webapi.jhtml
 
